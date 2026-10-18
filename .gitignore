@@ -9,3 +9,4 @@ dashboard/node_modules
 dashboard/.next
 dashboard/out
 dashboard/build
+.vercel
