@@ -1,19 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { ClaudeLogo } from "./ClaudeLogo";
 
-const statusSteps = [
-  "Pondering architecture",
-  "Synthesizing components",
+const words = [
+  "Pondering...",
+  "Cogitating...",
+  "Noodling...",
+  "Percolating...",
+  "Ruminating...",
+  "Synthesizing...",
   "Ready",
 ];
 
 export function IntroAnimation({ children }: { children: React.ReactNode }) {
   const [phase, setPhase] = useState<"intro" | "done">("intro");
-  const [stepIndex, setStepIndex] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [wordIndex, setWordIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const finish = useCallback(() => {
     setPhase("done");
@@ -22,96 +28,56 @@ export function IntroAnimation({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (phase !== "intro") return;
 
-    const t1 = setTimeout(() => setStepIndex(1), 900);
-    const t2 = setTimeout(() => setStepIndex(2), 1900);
-    const t3 = setTimeout(finish, 2800);
+    const currentWord = words[wordIndex];
+    if (!currentWord) {
+      finish();
+      return;
+    }
 
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
-  }, [phase, finish]);
+    // If on the final word ("Ready") and fully typed, hold and finish
+    if (wordIndex === words.length - 1 && charIndex === currentWord.length) {
+      const timer = setTimeout(finish, 850);
+      return () => clearTimeout(timer);
+    }
 
-  // Real-time chroma-keying of video to transparent canvas
-  useEffect(() => {
-    if (phase !== "intro") return;
+    let timer: NodeJS.Timeout;
 
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas) return;
-
-    let animId: number;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
-
-    const processFrame = () => {
-      if (video.readyState >= 2 && !video.paused) {
-        const w = canvas.width;
-        const h = canvas.height;
-
-        // Crop centered square from 16:9 video
-        const vw = video.videoWidth || 1280;
-        const vh = video.videoHeight || 720;
-        const size = Math.min(vw, vh);
-        const sx = (vw - size) / 2;
-        const sy = (vh - size) / 2;
-
-        ctx.clearRect(0, 0, w, h);
-        ctx.drawImage(video, sx, sy, size, size, 0, 0, w, h);
-
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const data = imgData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-
-          // Background in loading.mp4 is ~#EAE6E1 (234, 230, 225)
-          const bgDist = Math.hypot(r - 234, g - 230, b - 225);
-
-          if (bgDist < 22) {
-            data[i + 3] = 0; // Pure background -> 100% transparent
-          } else if (bgDist < 55) {
-            // Anti-aliased edge: smooth alpha and color to Claude terracotta
-            const alpha = (bgDist - 22) / 33;
-            data[i] = 217;
-            data[i + 1] = 119;
-            data[i + 2] = 87;
-            data[i + 3] = Math.round(alpha * 255);
-          }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
+    if (!isDeleting) {
+      if (charIndex < currentWord.length) {
+        // Typing forward character by character
+        timer = setTimeout(() => {
+          setCharIndex((prev) => prev + 1);
+        }, 36);
+      } else {
+        // Word fully typed, pause before deleting
+        timer = setTimeout(() => {
+          setIsDeleting(true);
+        }, 550);
       }
-      animId = requestAnimationFrame(processFrame);
-    };
+    } else {
+      if (charIndex > 0) {
+        // Backspacing
+        timer = setTimeout(() => {
+          setCharIndex((prev) => prev - 1);
+        }, 18);
+      } else {
+        // Fully erased, advance to next word
+        timer = setTimeout(() => {
+          setIsDeleting(false);
+          setWordIndex((prev) => prev + 1);
+        }, 110);
+      }
+    }
 
-    video.play().catch(() => {});
-    animId = requestAnimationFrame(processFrame);
+    return () => clearTimeout(timer);
+  }, [phase, wordIndex, charIndex, isDeleting, finish]);
 
-    return () => {
-      cancelAnimationFrame(animId);
-    };
-  }, [phase]);
+  const displayedText = words[wordIndex]
+    ? words[wordIndex].substring(0, charIndex)
+    : "";
 
   return (
     <>
-      {/* Hidden source video used for chroma-keying */}
-      {phase === "intro" && (
-        <video
-          ref={videoRef}
-          src="/loading.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="hidden"
-        />
-      )}
-
       <AnimatePresence>
         {phase === "intro" && (
           <motion.div
@@ -121,84 +87,63 @@ export function IntroAnimation({ children }: { children: React.ReactNode }) {
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-bg select-none"
           >
-            {/* Transparent Canvas with Pure Logo (No background disk) */}
+            {/* Claude-style animated vector mark (infinite resolution, zero artifacts) */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="relative z-10 flex items-center justify-center"
             >
-              <canvas
-                ref={canvasRef}
-                width={240}
-                height={240}
-                className="h-44 w-44 sm:h-56 sm:w-56"
-              />
-            </motion.div>
-
-            {/* Brand Title / Identity */}
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25, duration: 0.5, ease: "easeOut" }}
-              className="relative z-10 mt-6 text-center"
-            >
-              <h2 className="font-serif text-xl sm:text-2xl font-normal tracking-tight text-ink">
-                Rythm Jagga
-              </h2>
-            </motion.div>
-
-            {/* Clean Claude terminal-style thought steps (Zero Emojis) */}
-            <div className="relative z-10 mt-3 h-5 w-full max-w-xs overflow-hidden px-4">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={stepIndex}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.28, ease: "easeOut" }}
-                  className="flex items-center justify-center text-center text-[13px] tracking-wide text-muted"
-                >
-                  <span>{statusSteps[stepIndex]}</span>
-                  <motion.span
-                    animate={{ opacity: [1, 0.2, 1] }}
-                    transition={{
-                      duration: 1.2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="ml-0.5"
-                  >
-                    …
-                  </motion.span>
-                </motion.p>
-              </AnimatePresence>
-            </div>
-
-            {/* Claude-style delicate linear progress bar */}
-            <div className="relative z-10 mt-6 w-32 sm:w-40">
-              <div className="h-[1.5px] w-full rounded-full bg-line" />
               <motion.div
-                className="absolute left-0 top-0 h-[1.5px] rounded-full bg-accent"
-                initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
-                transition={{
-                  duration: 2.6,
-                  ease: [0.22, 1, 0.36, 1],
+                animate={{
+                  rotate: 360,
+                  scale: [0.95, 1.05, 0.95],
                 }}
-              />
+                transition={{
+                  rotate: {
+                    duration: 6.5,
+                    repeat: Infinity,
+                    ease: "linear",
+                  },
+                  scale: {
+                    duration: 2.2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  },
+                }}
+                className="flex items-center justify-center"
+              >
+                <ClaudeLogo className="h-28 w-28 sm:h-36 sm:w-36 text-accent-strong transition-colors" />
+              </motion.div>
+            </motion.div>
+
+            {/* Terminal typewriter status thinking effect (No line animation, zero emojis, no name) */}
+            <div className="relative z-10 mt-8 flex h-7 items-center justify-center px-4">
+              <p className="font-mono text-[14px] sm:text-[15px] tracking-wide text-muted flex items-center">
+                <span>{displayedText}</span>
+                <motion.span
+                  animate={{ opacity: [1, 0, 1] }}
+                  transition={{
+                    duration: 0.75,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                  className="inline-block w-[2px] h-[15px] bg-accent ml-1 rounded-sm"
+                />
+              </p>
             </div>
 
-            {/* Skip button */}
+            {/* Skip button at Bottom Right */}
             <motion.button
               type="button"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.7, duration: 0.35 }}
+              transition={{ delay: 0.4, duration: 0.35 }}
               onClick={finish}
-              className="relative z-10 mt-8 text-[11px] font-medium tracking-[0.2em] uppercase text-muted hover:text-ink transition-colors"
+              className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-20 flex items-center gap-1.5 text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase text-muted hover:text-ink transition-colors px-3 py-1.5 rounded-lg hover:bg-sunken/60"
             >
-              Skip
+              <span>Skip</span>
+              <ArrowRight size={13} />
             </motion.button>
           </motion.div>
         )}
@@ -214,5 +159,3 @@ export function IntroAnimation({ children }: { children: React.ReactNode }) {
     </>
   );
 }
-
-

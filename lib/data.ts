@@ -133,3 +133,103 @@ export const projects = [
     repo: "#",
   },
 ];
+
+export interface BlogPost {
+  slug: string;
+  title: string;
+  subtitle: string;
+  date: string;
+  readTime: string;
+  tags: string[];
+  excerpt: string;
+  featured?: boolean;
+  content: {
+    intro: string[];
+    sections: {
+      heading: string;
+      paragraphs: string[];
+      code?: {
+        language: string;
+        snippet: string;
+        caption?: string;
+      };
+      quote?: string;
+    }[];
+    conclusion: string;
+  };
+}
+
+export const blogs: BlogPost[] = [
+  {
+    slug: "writing-software-like-prose",
+    title: "Writing Software Like Prose: The Architecture of Empathy",
+    subtitle:
+      "Why the most resilient distributed systems are built not on clever syntax, but on lucid prose and clear domain boundaries.",
+    date: "October 18, 2026",
+    readTime: "5 min read",
+    tags: ["Architecture", "Clean Code", "Spring Boot", "System Design"],
+    featured: true,
+    excerpt:
+      "Code is read twenty times more often than it is written. When we treat APIs, domain boundaries, and service layers as narrative chapters rather than mechanical instructions, systems become simpler to scale, debug, and mentor.",
+    content: {
+      intro: [
+        "In his seminal 1984 paper on Literate Programming, Donald Knuth proposed a radical shift in perspective: instead of imagining that our main task is instructing a computer what to do, we should concentrate on explaining to human beings what we want a computer to do.",
+        "Over four decades later, in an era dominated by sprawling microservices, distributed queues, and autonomous deployment pipelines, Knuth's premise feels more urgent than ever. Code is read twenty times more frequently than it is authored. Every cryptic variable, every tangled ternary expression, and every leaky domain abstraction extracts an invisible tax from the next engineer who opens the repository at 2 AM.",
+      ],
+      sections: [
+        {
+          heading: "1. The Grammar of Domain Boundaries",
+          paragraphs: [
+            "In literature, syntax exists to serve clarity. The same applies to enterprise software architecture. When designing MVC backends in Java and Spring Boot, we are not merely assembling controllers and data repositories; we are authoring a domain vocabulary.",
+            "Consider a billing workflow. A procedural mindset dumps status updates, tax calculations, and database calls into a single eight-hundred-line service method. A narrative mindset, conversely, speaks in active, immutable sentences. The domain model reads like a story:",
+          ],
+          code: {
+            language: "java",
+            caption: "Expressive domain modeling with fluent intent in Spring Boot",
+            snippet: `@Transactional
+public OrderReceipt finalizeCheckout(CheckoutCommand command) {
+    CustomerAccount customer = accounts.requireActive(command.customerId());
+    ShoppingCart cart = carts.findPending(command.cartId());
+
+    PaymentAuthorization payment = paymentGateway.authorize(
+        customer.billingProfile(),
+        cart.calculateTotal()
+    );
+
+    Order order = Order.createFrom(cart)
+        .attachPayment(payment)
+        .assignTrackingNumber(inventory.allocateStock(cart.items()));
+
+    orders.save(order);
+    eventPublisher.publish(new OrderCompletedEvent(order.id()));
+
+    return OrderReceipt.from(order);
+}`,
+          },
+          paragraphs: [
+            "Notice how the code above does not require inline comments. The method names are active verbs; the domain models are distinct nouns. An incoming developer or a product lead can follow the logical flow without needing to decrypt the underlying database schema.",
+          ],
+        },
+        {
+          heading: "2. Cohesion over Cleverness",
+          quote:
+            "Clever code is a flex for the author; clear code is a gift to the team.",
+          paragraphs: [
+            "Early in my engineering journey, joining a startup as the second engineer taught me an irreplaceable lesson: clever abstractions often turn into technical debt. When you mentor incoming engineers and watch them interact with your codebase for the first time, you quickly discover that unvarnished simplicity beats hyper-generic metaprogramming every single time.",
+            "A well-structured service should feel like a book chapter: it establishes its context, introduces its actors, carries out a single cohesive responsibility, and cleanly exits.",
+          ],
+        },
+        {
+          heading: "3. Interfaces as Contracts of Dialogue",
+          paragraphs: [
+            "Whether you are shipping a RESTful web service for web clients or exposing endpoints to an Android Kotlin application, API design is fundamentally an act of communication. Predictable error responses, idempotent mutations, and strict schemas are the punctuation marks of modern engineering.",
+            "When our systems communicate with precision and grace, the software doesn't just run better — it allows the humans building it to move faster and build with confidence.",
+          ],
+        },
+      ],
+      conclusion:
+        "Building software like prose isn't about writing essays inside source files. It is about respecting the cognitive load of everyone who will touch your work tomorrow. When you prioritize clarity, empathy, and deliberate architecture, the software inevitably stands the test of time.",
+    },
+  },
+];
+

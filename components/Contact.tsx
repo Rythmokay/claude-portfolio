@@ -40,15 +40,15 @@ export function Contact() {
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-5">
             <SectionHeading
-              number="05"
+              number="06"
               label="Contact"
               title={
                 <>
-                  Let&rsquo;s write something{" "}
+                  Let&rsquo;s build something{" "}
                   <em className="text-accent-strong">together</em>
                 </>
               }
-              intro="Have a project, a role or just a thought to share? Send a note and I'll reply within a couple of days."
+              intro="Have an engineering role, a project, or a technical inquiry? Send a note and I'll get back to you shortly."
             />
             <Reveal delay={0.1}>
               <div className="space-y-4 text-lg">
@@ -97,7 +97,7 @@ export function Contact() {
                     name="name"
                     required
                     autoComplete="name"
-                    placeholder="Jane Austen"
+                    placeholder="Your name"
                     className="field"
                   />
                 </label>
@@ -108,7 +108,7 @@ export function Contact() {
                     type="email"
                     required
                     autoComplete="email"
-                    placeholder="jane@example.com"
+                    placeholder="name@company.com"
                     className="field"
                   />
                 </label>
@@ -119,7 +119,7 @@ export function Contact() {
                   name="message"
                   required
                   rows={5}
-                  placeholder="Tell me about your project…"
+                  placeholder="Your message..."
                   className="field resize-y"
                 />
               </label>
@@ -144,9 +144,9 @@ export function Contact() {
                     status === "error" ? "text-accent-strong" : "text-muted"
                   }`}
                 >
-                  {status === "sent" && "Thank you — your message is on its way."}
+                  {status === "sent" && "Thank you — your message has been sent."}
                   {status === "error" &&
-                    "Something went wrong. Please try again or email me directly."}
+                    "Something went wrong. Please try again or email directly."}
                 </p>
               </div>
             </form>

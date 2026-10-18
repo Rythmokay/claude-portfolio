@@ -4,14 +4,16 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { ClaudeSpark } from "./ClaudeSpark";
 import { profile } from "@/lib/data";
 
 const links = [
-  { href: "#about", label: "About" },
-  { href: "#experience", label: "Experience" },
-  { href: "#skills", label: "Skills" },
-  { href: "#projects", label: "Projects" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#about", label: "About" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/#skills", label: "Skills" },
+  { href: "/#projects", label: "Projects" },
+  { href: "/blog", label: "Blog" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -34,14 +36,17 @@ export function Navbar() {
       }`}
     >
       <div className="container-page flex h-16 items-center justify-between">
-        <a href="#home" className="flex items-center gap-3" aria-label="Home">
-          <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-accent-strong text-xl italic text-white">
-            {profile.initial}
-          </span>
-          <span className="hidden text-lg tracking-tight sm:inline">
+        <a
+          href="/#home"
+          className="group flex items-center gap-2.5 transition-opacity hover:opacity-90"
+          aria-label="Home"
+        >
+          <ClaudeSpark className="h-6 w-6 text-accent sm:h-7 sm:w-7" />
+          <span className="font-serif text-[19px] tracking-tight text-ink sm:text-[22px] font-normal">
             {profile.name}
           </span>
         </a>
+
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
           {links.map((l) => (
