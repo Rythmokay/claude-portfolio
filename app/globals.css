@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------
+   Theme tokens (space-separated RGB so Tailwind opacity modifiers work)
+   Light = warm ivory paper. Dark = deep burgundy.
+------------------------------------------------------------------- */
+:root {
+  --bg: 250 249 245; /* #FAF9F5 */
+  --surface: 255 255 255; /* #FFFFFF */
+  --sunken: 240 238 230; /* #F0EEE6 */
+  --ink: 20 20 19; /* #141413 */
+  --muted: 115 114 108; /* #73726C */
+  --line: 232 230 220; /* #E8E6DC */
+  --accent: 217 119 87; /* #D97757 */
+  --accent-strong: 198 97 63; /* #C6613F */
+  --shadow: 20 20 19;
+}
+
+.dark {
+  --bg: 66 32 42; /* #42202A */
+  --surface: 81 45 56; /* #512D38 */
+  --sunken: 53 27 34; /* #351B22 */
+  --ink: 245 235 224; /* #F5EBE0 */
+  --muted: 204 182 178; /* #CCB6B2 */
+  --line: 108 67 78; /* #6C434E */
+  --accent: 224 140 108; /* #E08C6C */
+  --accent-strong: 205 105 70; /* #CD6946 */
+  --shadow: 0 0 0;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg text-ink antialiased;
+    font-feature-settings: "liga", "kern", "onum";
+    text-rendering: optimizeLegibility;
+    transition: background-color 0.35s ease, color 0.35s ease;
+  }
+  /* Each section already reserves space for the fixed navbar via .screen */
+  section[id] {
+    scroll-margin-top: 0;
+  }
+  ::selection {
+    background: rgb(var(--accent) / 0.35);
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  /* Gentle "one screen at a time" snapping on desktop */
+  @media (min-width: 1024px) {
+    html {
+      scroll-snap-type: y proximity;
+    }
+    section[id] {
+      scroll-snap-align: start;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  /* One section = at least one full screen, content centred below the navbar */
+  .screen {
+    @apply flex min-h-svh flex-col justify-center pb-8 pt-24;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-[0.22em] text-muted;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[15px] font-medium transition-all duration-200 active:scale-[0.98];
+  }
+  .btn-primary {
+    @apply bg-accent-strong text-white shadow-sm hover:brightness-95 dark:hover:brightness-110;
+  }
+  .btn-ghost {
+    @apply border border-line bg-surface text-ink hover:bg-sunken;
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border border-line bg-bg px-3 py-1 text-[13px] text-ink/80 transition-colors;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-line bg-bg px-4 py-3 text-[16px] text-ink outline-none transition placeholder:text-muted/70 focus:border-accent focus:ring-2 focus:ring-accent/30;
+  }
+}
+
+/* Section intros are hidden on short desktop screens so each section fits one view */
+@media (min-width: 1024px) and (max-height: 879px) {
+  .heading-intro {
+    display: none;
+  }
+}
