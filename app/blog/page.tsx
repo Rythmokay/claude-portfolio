@@ -1,8 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { blogs } from "@/lib/data";
+import { getPortfolioData } from "@/lib/db";
 
 export const metadata = {
   title: "Writing — Rythm Jagga",
@@ -10,7 +11,9 @@ export const metadata = {
     "Essays and technical notes by Rythm Jagga on software craft, system architecture, and readable code.",
 };
 
-export default function BlogIndexPage() {
+export default async function BlogIndexPage() {
+  const data = await getPortfolioData();
+  const blogs = data.blogs || [];
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col justify-between">
       <Navbar />
@@ -45,14 +48,14 @@ export default function BlogIndexPage() {
               key={post.slug}
               className="group py-10 first:pt-0 last:pb-0 transition-colors"
             >
-              <div className="flex flex-col gap-4 lg:grid lg:grid-cols-12 lg:gap-8 items-baseline">
+              <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:gap-8 items-start">
                 {/* Metadata column */}
-                <div className="lg:col-span-3 text-sm text-muted flex items-center lg:flex-col lg:items-start gap-3">
+                <div className="lg:col-span-2 text-sm text-muted flex items-center lg:flex-col lg:items-start gap-3">
                   <span>{post.date}</span>
                 </div>
 
                 {/* Content column */}
-                <div className="lg:col-span-9">
+                <div className={post.coverImage ? "lg:col-span-6" : "lg:col-span-10"}>
                   <div className="flex items-start justify-between gap-4">
                     <Link href={`/blog/${post.slug}`}>
                       <h2 className="font-serif text-2xl sm:text-3xl tracking-tight leading-snug group-hover:text-accent-strong transition-colors">
@@ -68,22 +71,47 @@ export default function BlogIndexPage() {
                     </Link>
                   </div>
 
-                  <p className="mt-3 text-base text-muted/95 leading-relaxed font-normal max-w-3xl">
+                  <p className="mt-3 text-base text-muted/95 leading-relaxed font-normal">
                     {post.subtitle}
                   </p>
 
-                  <p className="mt-4 text-[15px] text-ink/80 leading-relaxed max-w-3xl">
+                  <p className="mt-4 text-[15px] text-ink/80 leading-relaxed">
                     {post.excerpt}
                   </p>
 
                   <div className="mt-5 flex flex-wrap items-center gap-2">
-                    {post.tags.map((tag) => (
+                    {post.tags.map((tag: string) => (
                       <span key={tag} className="chip !px-2.5 !py-0.5 !text-[12px]">
                         {tag}
                       </span>
                     ))}
                   </div>
                 </div>
+
+                {/* Illustration column */}
+                {post.coverImage && (
+                  <div className="w-full lg:col-span-4">
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="block overflow-hidden rounded-xl border border-line bg-sunken/40 shadow-sm transition-all duration-300 group-hover:border-accent/40 group-hover:shadow-md"
+                    >
+                      <div className="relative aspect-[16/10] w-full overflow-hidden bg-sunken/40">
+                        <Image
+                          src={post.coverImage}
+                          alt={post.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          sizes="(max-width: 1024px) 100vw, 320px"
+                        />
+                      </div>
+                      {post.coverCaption && (
+                        <div className="border-t border-line bg-sunken/60 px-3 py-1.5 text-[11px] italic text-muted truncate">
+                          {post.coverCaption}
+                        </div>
+                      )}
+                    </Link>
+                  </div>
+                )}
               </div>
             </article>
           ))}

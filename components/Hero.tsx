@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { ArrowDown, Download, Github, Linkedin, Mail } from "lucide-react";
 import { Reveal } from "./Reveal";
-import { profile } from "@/lib/data";
-
-const photo = "/profile.svg"; // swap for /profile.jpg when you have a portrait
+import { usePortfolio } from "@/lib/portfolio-provider";
 
 export function Hero() {
+  const { profile } = usePortfolio();
+  const photo = profile.avatar || "/profile.svg";
   return (
     <section id="home" className="screen">
       <div className="container-page">
@@ -33,19 +33,17 @@ export function Hero() {
 
             {/* ---------- MOBILE ACTION BUTTONS (< lg) ---------- */}
             <div className="mt-6 flex flex-col gap-2.5 lg:hidden">
-              <a
-                href="#contact"
-                className="btn btn-primary w-full justify-center"
-              >
-                <Mail size={16} /> Get in touch
-              </a>
               <div className="grid grid-cols-2 gap-2">
-                <a
-                  href="#projects"
-                  className="btn btn-ghost justify-center px-2 text-xs sm:text-sm whitespace-nowrap"
+                <button
+                  type="button"
+                  onClick={() => {
+                    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+                    window.history.pushState(null, "", "#projects");
+                  }}
+                  className="btn btn-primary justify-center px-2 text-xs sm:text-sm whitespace-nowrap cursor-pointer"
                 >
                   Read my work <ArrowDown size={14} />
-                </a>
+                </button>
                 <a
                   href={profile.cv}
                   download="Rythm_CV.pdf"
@@ -55,6 +53,13 @@ export function Hero() {
                 </a>
               </div>
               <div className="mt-2 flex items-center justify-center gap-2.5">
+                <a
+                  href={`mailto:${profile.email}`}
+                  aria-label="Email"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-muted transition-colors hover:bg-sunken hover:text-ink"
+                >
+                  <Mail size={18} strokeWidth={1.75} />
+                </a>
                 <a
                   href={profile.socials.github}
                   aria-label="GitHub"
@@ -78,35 +83,46 @@ export function Hero() {
             {/* ---------- DESKTOP ACTION BUTTONS (lg+) ---------- */}
             <Reveal delay={0.2} className="hidden lg:block">
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <a href="#contact" className="btn btn-primary">
-                  <Mail size={17} /> Get in touch
-                </a>
-                <a href="#projects" className="btn btn-ghost">
+                <button
+                  type="button"
+                  onClick={() => {
+                    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+                    window.history.pushState(null, "", "#projects");
+                  }}
+                  className="btn btn-primary cursor-pointer"
+                >
                   Read my work <ArrowDown size={17} />
-                </a>
-              </div>
-              <div className="mt-4 flex flex-wrap items-center gap-2">
+                </button>
                 <a
                   href={profile.cv}
                   download="Rythm_CV.pdf"
-                  className="btn btn-ghost !py-2.5"
+                  className="btn btn-ghost"
                 >
                   <Download size={17} /> Download CV
                 </a>
-                <a
-                  href={profile.socials.github}
-                  aria-label="GitHub"
-                  className="rounded-lg p-2.5 text-muted transition-colors hover:bg-sunken hover:text-ink"
-                >
-                  <Github size={20} strokeWidth={1.75} />
-                </a>
-                <a
-                  href={profile.socials.linkedin}
-                  aria-label="LinkedIn"
-                  className="rounded-lg p-2.5 text-muted transition-colors hover:bg-sunken hover:text-ink"
-                >
-                  <Linkedin size={20} strokeWidth={1.75} />
-                </a>
+                <div className="ml-1 flex items-center gap-1">
+                  <a
+                    href={`mailto:${profile.email}`}
+                    aria-label="Email"
+                    className="rounded-lg p-2.5 text-muted transition-colors hover:bg-sunken hover:text-ink"
+                  >
+                    <Mail size={20} strokeWidth={1.75} />
+                  </a>
+                  <a
+                    href={profile.socials.github}
+                    aria-label="GitHub"
+                    className="rounded-lg p-2.5 text-muted transition-colors hover:bg-sunken hover:text-ink"
+                  >
+                    <Github size={20} strokeWidth={1.75} />
+                  </a>
+                  <a
+                    href={profile.socials.linkedin}
+                    aria-label="LinkedIn"
+                    className="rounded-lg p-2.5 text-muted transition-colors hover:bg-sunken hover:text-ink"
+                  >
+                    <Linkedin size={20} strokeWidth={1.75} />
+                  </a>
+                </div>
               </div>
             </Reveal>
           </div>

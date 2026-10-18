@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #FAF9F5;
+  --surface: #FFFFFF;
+  --sunken: #F0EEE6;
+  --ink: #141413;
+  --muted: #73726C;
+  --line: #E8E6DC;
+  --accent: #D97757;
+  --accent-strong: #C6613F;
+}
+
+.dark {
+  --bg: #42202A;
+  --surface: #512D38;
+  --sunken: #351B22;
+  --ink: #F5EBE0;
+  --muted: #CCB6B2;
+  --line: #6C434E;
+  --accent: #E08C6C;
+  --accent-strong: #CD6946;
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --font-serif: var(--font-serif), "Newsreader", "Georgia", serif;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.field {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background-color: var(--bg);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.925rem;
+  color: var(--ink);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.2);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--accent-strong);
+  color: #FFFFFF;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  border: none;
+}
+
+.btn-primary:hover {
+  opacity: 0.92;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--sunken);
+}

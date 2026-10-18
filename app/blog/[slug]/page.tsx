@@ -1,13 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Share2 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { blogs, profile } from "@/lib/data";
-
-export function generateStaticParams() {
-  return blogs.map((b) => ({ slug: b.slug }));
-}
+import { getPortfolioData } from "@/lib/db";
+import { blogs as fallbackBlogs, profile as fallbackProfile } from "@/lib/data";
 
 export async function generateMetadata({
   params,
@@ -15,7 +13,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = blogs.find((b) => b.slug === slug);
+  const data = await getPortfolioData();
+  const list = data.blogs?.length ? data.blogs : fallbackBlogs;
+  const post = list.find((b: any) => b.slug === slug);
   if (!post) return { title: "Post Not Found" };
   return {
     title: `${post.title} — Rythm Jagga`,
@@ -29,7 +29,10 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = blogs.find((b) => b.slug === slug);
+  const data = await getPortfolioData();
+  const list = data.blogs?.length ? data.blogs : fallbackBlogs;
+  const post = list.find((b: any) => b.slug === slug);
+  const profile = data.profile || fallbackProfile;
 
   if (!post) {
     notFound();
@@ -62,7 +65,7 @@ export default async function BlogPostPage({
           <header className="border-b border-line pb-10">
             {/* Tag chips & Date */}
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
-              {post.tags.map((tag) => (
+              {post.tags.map((tag: string) => (
                 <span key={tag} className="chip !px-2.5 !py-0.5 !text-[12px]">
                   {tag}
                 </span>
@@ -97,10 +100,34 @@ export default async function BlogPostPage({
             </div>
           </header>
 
+          {/* Featured Editorial Illustration */}
+          {post.coverImage && (
+            <figure className="my-10 overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-sunken/40">
+                <Image
+                  src={post.coverImage}
+                  alt={post.title}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 768px"
+                />
+              </div>
+              {post.coverCaption && (
+                <figcaption className="border-t border-line bg-sunken/40 px-5 py-3 text-xs italic text-muted tracking-wide flex items-center justify-between">
+                  <span>{post.coverCaption}</span>
+                  <span className="not-italic text-[11px] uppercase tracking-wider text-muted/80 font-mono">
+                    Plate I
+                  </span>
+                </figcaption>
+              )}
+            </figure>
+          )}
+
           {/* Article Body */}
-          <div className="pt-10 space-y-8 text-lg sm:text-[19px] leading-[1.8] text-ink/90 font-serif">
+          <div className="pt-2 space-y-8 text-lg sm:text-[19px] leading-[1.8] text-ink/90 font-serif">
             {/* Intro Paragraphs with Drop Cap */}
-            {post.content.intro.map((p, idx) => (
+            {post.content.intro.map((p: string, idx: number) => (
               <p
                 key={idx}
                 className={
@@ -114,13 +141,13 @@ export default async function BlogPostPage({
             ))}
 
             {/* Sections */}
-            {post.content.sections.map((section, sIdx) => (
+            {post.content.sections.map((section: any, sIdx: number) => (
               <section key={sIdx} className="space-y-6 pt-4">
                 <h2 className="font-serif text-2xl sm:text-3xl tracking-tight text-ink font-normal pt-2">
                   {section.heading}
                 </h2>
 
-                {section.paragraphs.map((p, pIdx) => (
+                {section.paragraphs.map((p: string, pIdx: number) => (
                   <p key={pIdx}>{p}</p>
                 ))}
 

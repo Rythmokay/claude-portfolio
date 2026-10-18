@@ -5,11 +5,12 @@ import { Download, Github, Linkedin, Loader2, Mail, Send } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 import { Footer } from "./Footer";
-import { profile } from "@/lib/data";
+import { usePortfolio } from "@/lib/portfolio-provider";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
 export function Contact() {
+  const { profile } = usePortfolio();
   const [status, setStatus] = useState<Status>("idle");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {

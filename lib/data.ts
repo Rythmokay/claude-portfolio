@@ -99,6 +99,8 @@ export const skillGroups = [
   },
 ];
 
+export const skills = skillGroups;
+
 export const projects = [
   {
     title: "AI Influencer Management Portal",
@@ -143,6 +145,8 @@ export interface BlogPost {
   tags: string[];
   excerpt: string;
   featured?: boolean;
+  coverImage?: string;
+  coverCaption?: string;
   content: {
     intro: string[];
     sections: {
@@ -169,6 +173,9 @@ export const blogs: BlogPost[] = [
     readTime: "5 min read",
     tags: ["Architecture", "Clean Code", "Spring Boot", "System Design"],
     featured: true,
+    coverImage: "/blog-software-prose.jpg",
+    coverCaption:
+      "Fig. 1 — The architecture of prose: balancing domain clarity with systemic rigor.",
     excerpt:
       "Code is read twenty times more often than it is written. When we treat APIs, domain boundaries, and service layers as narrative chapters rather than mechanical instructions, systems become simpler to scale, debug, and mentor.",
     content: {
@@ -182,6 +189,7 @@ export const blogs: BlogPost[] = [
           paragraphs: [
             "In literature, syntax exists to serve clarity. The same applies to enterprise software architecture. When designing MVC backends in Java and Spring Boot, we are not merely assembling controllers and data repositories; we are authoring a domain vocabulary.",
             "Consider a billing workflow. A procedural mindset dumps status updates, tax calculations, and database calls into a single eight-hundred-line service method. A narrative mindset, conversely, speaks in active, immutable sentences. The domain model reads like a story:",
+            "Notice how the code above does not require inline comments. The method names are active verbs; the domain models are distinct nouns. An incoming developer or a product lead can follow the logical flow without needing to decrypt the underlying database schema.",
           ],
           code: {
             language: "java",
@@ -206,9 +214,6 @@ public OrderReceipt finalizeCheckout(CheckoutCommand command) {
     return OrderReceipt.from(order);
 }`,
           },
-          paragraphs: [
-            "Notice how the code above does not require inline comments. The method names are active verbs; the domain models are distinct nouns. An incoming developer or a product lead can follow the logical flow without needing to decrypt the underlying database schema.",
-          ],
         },
         {
           heading: "2. Cohesion over Cleverness",

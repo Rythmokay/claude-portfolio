@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { PortfolioProvider } from "@/lib/portfolio-provider";
 
 const serif = Newsreader({
   subsets: ["latin"],
@@ -25,7 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={serif.variable}>
       <body className="font-serif">
-        <ThemeProvider>{children}</ThemeProvider>
+        <PortfolioProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </PortfolioProvider>
       </body>
     </html>
   );

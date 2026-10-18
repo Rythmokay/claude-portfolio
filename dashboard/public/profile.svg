@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Portrait placeholder">
+  <rect width="800" height="1000" fill="#EAE4D4"/>
+  <circle cx="400" cy="380" r="150" fill="#D97757"/>
+  <path d="M110 1000c0-220 130-380 290-380s290 160 290 380z" fill="#F7F3E8"/>
+  <path d="M400 620c-70 0-130 40-170 110 60 40 110 60 170 60s110-20 170-60c-40-70-100-110-170-110z" fill="#C6613F" opacity=".18"/>
+</svg>

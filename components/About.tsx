@@ -1,8 +1,11 @@
+"use client";
+
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
-import { profile } from "@/lib/data";
+import { usePortfolio } from "@/lib/portfolio-provider";
 
 export function About() {
+  const { profile } = usePortfolio();
   return (
     <section id="about" className="screen border-t border-line">
       <div className="container-page">

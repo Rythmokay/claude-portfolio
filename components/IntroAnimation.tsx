@@ -5,24 +5,64 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { ClaudeLogo } from "./ClaudeLogo";
 
+// Filtered word list without noodling and percolation
 const words = [
   "Pondering...",
   "Cogitating...",
-  "Noodling...",
-  "Percolating...",
   "Ruminating...",
   "Synthesizing...",
   "Ready",
 ];
 
-export function IntroAnimation({ children }: { children: React.ReactNode }) {
-  const [phase, setPhase] = useState<"intro" | "done">("intro");
+export function IntroAnimation() {
+  const [phase, setPhase] = useState<"intro" | "done">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const seen =
+          sessionStorage.getItem("portfolio_intro_seen") === "true" ||
+          localStorage.getItem("portfolio_intro_seen") === "true" ||
+          sessionStorage.getItem("portfolio_visited") === "true";
+        const fromInternal =
+          typeof document !== "undefined" &&
+          document.referrer &&
+          document.referrer.includes(window.location.host);
+        if (seen || fromInternal) {
+          sessionStorage.setItem("portfolio_intro_seen", "true");
+          localStorage.setItem("portfolio_intro_seen", "true");
+          return "done";
+        }
+      } catch {}
+    }
+    return "intro";
+  });
   const [wordIndex, setWordIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const finish = useCallback(() => {
+    try {
+      sessionStorage.setItem("portfolio_intro_seen", "true");
+      localStorage.setItem("portfolio_intro_seen", "true");
+    } catch {}
     setPhase("done");
+  }, []);
+
+  // Show opening animation only once, never when moving from blog or another internal page
+  useEffect(() => {
+    try {
+      const seen =
+        sessionStorage.getItem("portfolio_intro_seen") === "true" ||
+        localStorage.getItem("portfolio_intro_seen") === "true" ||
+        sessionStorage.getItem("portfolio_visited") === "true";
+      const fromInternal =
+        document.referrer && document.referrer.includes(window.location.host);
+      if (seen || fromInternal) {
+        sessionStorage.setItem("portfolio_intro_seen", "true");
+        localStorage.setItem("portfolio_intro_seen", "true");
+        setPhase("done");
+        return;
+      }
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -77,9 +117,8 @@ export function IntroAnimation({ children }: { children: React.ReactNode }) {
     : "";
 
   return (
-    <>
-      <AnimatePresence>
-        {phase === "intro" && (
+    <AnimatePresence>
+      {phase === "intro" && (
           <motion.div
             key="intro-overlay"
             initial={{ opacity: 1 }}
@@ -87,7 +126,7 @@ export function IntroAnimation({ children }: { children: React.ReactNode }) {
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-bg select-none"
           >
-            {/* Claude-style animated vector mark (infinite resolution, zero artifacts) */}
+            {/* Claude-style animated vector mark */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -117,7 +156,7 @@ export function IntroAnimation({ children }: { children: React.ReactNode }) {
               </motion.div>
             </motion.div>
 
-            {/* Terminal typewriter status thinking effect (No line animation, zero emojis, no name) */}
+            {/* Terminal typewriter status thinking effect */}
             <div className="relative z-10 mt-8 flex h-7 items-center justify-center px-4">
               <p className="font-mono text-[14px] sm:text-[15px] tracking-wide text-muted flex items-center">
                 <span>{displayedText}</span>
@@ -148,14 +187,5 @@ export function IntroAnimation({ children }: { children: React.ReactNode }) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={phase === "done" ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-      >
-        {children}
-      </motion.div>
-    </>
-  );
+    );
 }

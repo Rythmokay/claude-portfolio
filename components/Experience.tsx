@@ -1,10 +1,13 @@
+"use client";
+
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
-import { experience } from "@/lib/data";
+import { usePortfolio } from "@/lib/portfolio-provider";
 
 const numerals = ["I", "II", "III", "IV", "V", "VI"];
 
 export function Experience() {
+  const { experience } = usePortfolio();
   return (
     <section id="experience" className="screen border-t border-line">
       <div className="container-page">
