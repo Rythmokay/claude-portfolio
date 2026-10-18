@@ -1,0 +1,216 @@
+{
+  "profile": {
+    "name": "Rythm Jagga",
+    "initial": "R",
+    "cv": "/uploads/Rythm_CV__1__1792352327301.pdf",
+    "avatar": "/profile.svg",
+    "role": "Lead Full Stack Software Engineer",
+    "location": "Delhi, India",
+    "email": "rythm.meta@gmail.com",
+    "tagline": "Software Developer building MVC-based Java & Spring Boot web applications, RESTful web services, and production Android & web apps — from early-stage startups to full-scale systems.",
+    "availability": "Open to full-time roles and select freelance work",
+    "currently": "Full Stack Software Engineer at Concept Kart",
+    "socials": {
+      "github": "https://github.com/Rythmokay/",
+      "linkedin": "https://linkedin.com/in/rythmjagga/"
+    },
+    "about": [
+      "Software Developer pursuing B.Tech in AI & Data Science from Guru Gobind Singh Indraprastha University (2022–2026, CGPA 7.4), with hands-on experience building MVC-based Java and Spring Boot web applications, RESTful web services, and microservice-style back ends, alongside production Android and web apps.",
+      "Strong grounding in Java, object-oriented design and service-oriented architecture, with experience across the full development life cycle: requirements, technical design, testing, and delivery. Joined a start-up as the second engineer on its founding tech team and went on to mentor incoming engineers as the team grew.",
+      "Communicates clearly with senior developers, founders and clients. Placed 3rd at Hackunicorn Hackathon for building an AI-powered catering web application, and have delivered 3+ freelance client platforms including the Moksh Foundation NGO site and startup dashboards."
+    ],
+    "stats": [
+      {
+        "value": "3+",
+        "label": "Professional roles"
+      },
+      {
+        "value": "6+",
+        "label": "Projects shipped"
+      },
+      {
+        "value": "3+",
+        "label": "Freelance clients"
+      }
+    ]
+  },
+  "experience": [
+    {
+      "period": "May 2026 — Present",
+      "role": "Full Stack Software Engineer",
+      "company": "Concept Kart Private Limited",
+      "summary": "Joined as the second engineer on the founding tech team of a start-up; built the company's e-commerce systems from the ground up.",
+      "points": [
+        "Built native Android app MyAudiocular (Kotlin, MVVM) and web platform myaudiocular.com (Next.js) from scratch.",
+        "Integrated secure REST APIs / web services for real-time inventory synchronization, media playback, and checkout flows across mobile and web.",
+        "Guided and mentored incoming engineers on codebase architecture and delivery practices as the team grew, working closely with the senior developer."
+      ]
+    },
+    {
+      "period": "Feb 2026 — May 2026",
+      "role": "Full Stack Developer (Android & Web)",
+      "company": "Picturetime Digiplex Pvt. Ltd.",
+      "summary": "Engineered cinema ticket booking workflows with interactive seat selection and row-based mapping for web and mobile platforms.",
+      "points": [
+        "Built cinema ticket booking workflows with interactive seat selection and row-based mapping for picturetime.in and mobile app.",
+        "Developed a Next.js administrative portal with event management, category-based filtering, and automated Excel data export.",
+        "Verified booking and API flows with Postman for comprehensive API testing."
+      ]
+    },
+    {
+      "period": "Aug 2025 — Oct 2025",
+      "role": "Generative AI Intern",
+      "company": "Knowledge Excel Private Limited",
+      "summary": "Built Python backend microservices for LLM-driven conversational workflows using LangChain and LangGraph.",
+      "points": [
+        "Built Python backend microservices for LLM-driven conversational workflows using LangChain and LangGraph.",
+        "Developed Retrieval-Augmented Generation (RAG) pipelines using Chroma vector database and embedding search, with Pydantic validation."
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "title": "Back End & Architecture",
+      "category": "Back End & Architecture",
+      "items": [
+        "Java",
+        "Spring MVC",
+        "Spring Boot",
+        "RESTful Web Services",
+        "Microservices",
+        "Maven",
+        "Gradle"
+      ]
+    },
+    {
+      "title": "Front End",
+      "category": "Front End",
+      "items": [
+        "Next.js",
+        "React",
+        "JavaScript (ES6+)",
+        "TypeScript"
+      ]
+    },
+    {
+      "title": "Mobile",
+      "category": "Mobile",
+      "items": [
+        "Android",
+        "Kotlin",
+        "Jetpack Compose",
+        "XML Views"
+      ]
+    },
+    {
+      "title": "Databases & Tooling",
+      "category": "Databases & Tooling",
+      "items": [
+        "PostgreSQL",
+        "MongoDB",
+        "Firebase",
+        "Git",
+        "GitHub",
+        "Docker",
+        "AWS",
+        "Postman"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "AI Influencer Management Portal",
+      "blurb": "A portal for the marketing team to manage influencer data with a dashboard tracking product return status, barter vs. paid collaborations, and total spend per influencer. Features AI-based detection of whether a YouTuber has published a review video.",
+      "tags": [
+        "Next.js",
+        "AI",
+        "Dashboard"
+      ],
+      "live": "https://marketing.conceptkart.co.in",
+      "repo": "#",
+      "image": "/uploads/symbol_1792353616700.png"
+    },
+    {
+      "title": "Asset Allocation & HRMS Portal",
+      "blurb": "Built an asset allocation portal and project management portal, integrated into a Human Resource Management System with role-based dashboards, employee records, activity logs, and automated reminders for birthdays and company events.",
+      "tags": [
+        "Next.js",
+        "TypeScript",
+        "MongoDB"
+      ],
+      "live": "https://hrms.conceptkart.co.in",
+      "repo": "#"
+    },
+    {
+      "title": "Cinema Booking Flow & Admin Portal",
+      "blurb": "Interactive cinema ticket booking workflow with real-time seat selection and row-based mapping. Includes a complete Next.js administrative portal with event management, category-based filtering, and Excel export.",
+      "tags": [
+        "Next.js",
+        "REST APIs",
+        "Postman"
+      ],
+      "live": "https://picturetime.in",
+      "repo": "#"
+    },
+    {
+      "title": "MyAudiocular Android Application",
+      "blurb": "Native Android e-commerce application engineered from the ground up for an audio lifestyle brand, built using Kotlin and modern MVVM architecture.",
+      "tags": [
+        "Android",
+        "Kotlin",
+        "MVVM",
+        "REST APIs"
+      ],
+      "live": "https://myaudiocular.com",
+      "repo": "#"
+    }
+  ],
+  "blogs": [
+    {
+      "slug": "writing-software-like-prose",
+      "title": "Writing Software Like Prose",
+      "subtitle": "On why readability, naming conventions, and deliberate architecture matter more than clever one-liners in long-lived production systems.",
+      "date": "October 18, 2026",
+      "readTime": "6 min read",
+      "tags": [
+        "Architecture",
+        "Code Craft",
+        "Software Engineering"
+      ],
+      "featured": true,
+      "coverImage": "/blog-software-prose.jpg",
+      "coverCaption": "Fig. 1 — Architectural harmony between domain layers.",
+      "excerpt": "Most code is read far more often than it is written. Treating your codebase with the editorial discipline of an essay produces software that stands the test of time.",
+      "content": {
+        "intro": [
+          "Every software engineer eventually discovers that code is primarily a medium of human communication. Compilers are indifferent to indentation, elegance, or empathy. They translate byte for byte without opinion.",
+          "The real audience for any non-trivial codebase is the tired engineer opening your file six months from now — who is very likely to be yourself."
+        ],
+        "sections": [
+          {
+            "heading": "1. The Grammar of Good Architecture",
+            "paragraphs": [
+              "In literature, a well-structured essay unfolds logically: each paragraph presents a premise, develops it, and leads naturally to the next. High-performing software architectures mimic this exact rhythm.",
+              "When service layers speak clearly to data repositories, and domain models represent business realities without unnecessary translation indirection, cognitive friction dissolves."
+            ],
+            "quote": "Clear code is not the byproduct of brilliant brevity; it is the deliberate elimination of cognitive burden."
+          },
+          {
+            "heading": "2. Naming as Semantic Contract",
+            "paragraphs": [
+              "Consider variable names. An abbreviation saves keystrokes today, but costs minutes of deciphering on every subsequent read.",
+              "A function name should read like an active sentence with clear intent and zero hidden side effects."
+            ],
+            "code": {
+              "language": "typescript",
+              "caption": "Predictable naming vs. mysterious shorthand",
+              "snippet": "// Cryptic and brittle\nconst sync = async (d: any) => {\n  const r = await fetch('/api/inv', { method: 'POST', body: JSON.stringify(d) });\n  return r.json();\n};\n\n// Explicit and descriptive\nexport async function synchronizeInventoryRecords(\n  pendingStockUpdate: StockUpdateBatch\n): Promise<InventorySyncReceipt> {\n  const response = await fetch('/api/inventory/batch-sync', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(pendingStockUpdate),\n  });\n  return response.json();\n}"
+            }
+          }
+        ],
+        "conclusion": "Building software like prose isn't about writing essays inside source files. It is about respecting the cognitive load of everyone who will touch your work tomorrow. When you prioritize clarity, empathy, and deliberate architecture, the software inevitably stands the test of time."
+      }
+    }
+  ],
+  "messages": []
+}
