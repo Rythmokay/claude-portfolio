@@ -31,6 +31,16 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock page scroll while the full-screen mobile menu is open
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   const handleNav = (targetId: string, href: string) => {
     try {
       sessionStorage.setItem("portfolio_intro_seen", "true");
@@ -56,9 +66,11 @@ export function Navbar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled || open
-          ? "border-b border-line bg-bg/85 backdrop-blur-md"
-          : "border-b border-transparent"
+        open
+          ? "border-b border-line bg-bg"
+          : scrolled
+            ? "border-b border-line bg-bg/85 backdrop-blur-md"
+            : "border-b border-transparent"
       }`}
     >
       <div className="container-page flex h-16 items-center justify-between">
@@ -104,14 +116,14 @@ export function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.nav
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="overflow-hidden md:hidden"
+            className="h-[calc(100dvh-4rem)] overflow-y-auto bg-bg md:hidden"
             aria-label="Mobile"
           >
-            <div className="container-page flex flex-col gap-1 pb-4">
+            <div className="container-page flex flex-col gap-1 pt-2 pb-8">
               {navItems.map((item) => (
                 <button
                   key={item.label}

@@ -90,7 +90,7 @@ export default async function BlogIndexPage() {
 
                 {/* Illustration column */}
                 {post.coverImage && (
-                  <div className="w-full lg:col-span-4">
+                  <div className="order-first w-full lg:order-none lg:col-span-4">
                     <Link
                       href={`/blog/${post.slug}`}
                       className="block overflow-hidden rounded-xl border border-line bg-sunken/40 shadow-sm transition-all duration-300 group-hover:border-accent/40 group-hover:shadow-md"

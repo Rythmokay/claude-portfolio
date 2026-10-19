@@ -29,8 +29,8 @@ export function BlogFeatured() {
 
         <Reveal delay={0.1}>
           <article className="group relative overflow-hidden rounded-2xl border border-line bg-surface p-6 sm:p-9 shadow-card transition-all duration-300 hover:shadow-lift">
-            <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
-              <div className={featured.coverImage ? "lg:col-span-7" : "lg:col-span-12"}>
+            <div className="flex flex-col gap-8">
+              <div>
                 {/* Top metadata row */}
                 <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
                   <div className="flex items-center gap-2.5">
@@ -51,7 +51,31 @@ export function BlogFeatured() {
                       {featured.title}
                     </h3>
                   </Link>
-                  <p className="mt-3 text-base sm:text-lg text-muted/95 leading-relaxed font-normal">
+                  {/* Cover illustration — below the heading, above the text */}
+                  {featured.coverImage && (
+                    <div className="mt-6">
+                      <Link
+                        href={`/blog/${featured.slug}`}
+                        className="block overflow-hidden rounded-xl border border-line bg-sunken/40 shadow-sm transition-all duration-300 group-hover:border-accent/40 group-hover:shadow-md"
+                      >
+                        <div className="relative aspect-[16/10] lg:aspect-[21/9] w-full overflow-hidden bg-sunken/40">
+                          <Image
+                            src={featured.coverImage}
+                            alt={featured.title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                            sizes="(max-width: 1280px) 100vw, 1100px"
+                          />
+                        </div>
+                        {featured.coverCaption && (
+                          <div className="border-t border-line bg-sunken/60 px-3.5 py-2 text-[11px] italic text-muted">
+                            {featured.coverCaption}
+                          </div>
+                        )}
+                      </Link>
+                    </div>
+                  )}
+                  <p className={`${featured.coverImage ? "mt-6" : "mt-3"} text-base sm:text-lg text-muted/95 leading-relaxed font-normal`}>
                     {featured.subtitle}
                   </p>
                 </div>
@@ -91,30 +115,6 @@ export function BlogFeatured() {
                 </div>
               </div>
 
-              {/* Right column: Editorial Illustration */}
-              {featured.coverImage && (
-                <div className="lg:col-span-5">
-                  <Link
-                    href={`/blog/${featured.slug}`}
-                    className="block overflow-hidden rounded-xl border border-line bg-sunken/40 shadow-sm transition-all duration-300 group-hover:border-accent/40 group-hover:shadow-md"
-                  >
-                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-sunken/40">
-                      <Image
-                        src={featured.coverImage}
-                        alt={featured.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                        sizes="(max-width: 1024px) 100vw, 400px"
-                      />
-                    </div>
-                    {featured.coverCaption && (
-                      <div className="border-t border-line bg-sunken/60 px-3.5 py-2 text-[11px] italic text-muted">
-                        {featured.coverCaption}
-                      </div>
-                    )}
-                  </Link>
-                </div>
-              )}
             </div>
           </article>
         </Reveal>
