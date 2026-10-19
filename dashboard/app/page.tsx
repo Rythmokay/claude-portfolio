@@ -53,6 +53,11 @@ export default function DashboardPage() {
   >("profile");
 
   const [data, setData] = useState<any>(null);
+
+  // Contact messages are loaded separately from the content blob
+  const [messages, setMessages] = useState<any[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [messagesError, setMessagesError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -76,6 +81,7 @@ export default function DashboardPage() {
         setAuth(res.isAuthenticated);
         if (res.isAuthenticated) {
           loadData();
+          loadMessages();
           loadBucketFiles();
         } else {
           setLoading(false);
@@ -97,6 +103,31 @@ export default function DashboardPage() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMessages = async () => {
+    setMessagesLoading(true);
+    setMessagesError("");
+    try {
+      const res = await fetch("/api/messages", { cache: "no-store" });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Failed to load messages");
+      setMessages(d.messages || []);
+    } catch (e: any) {
+      setMessagesError(e.message || "Failed to load messages");
+    } finally {
+      setMessagesLoading(false);
+    }
+  };
+
+  const removeMessage = async (id: string) => {
+    const prev = messages;
+    setMessages(messages.filter((m) => m.id !== id));
+    const res = await fetch(`/api/messages?id=${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => null);
+    if (!res?.ok) {
+      setMessages(prev);
+      setMessagesError("Could not delete that message. Please try again.");
     }
   };
 
@@ -173,6 +204,7 @@ export default function DashboardPage() {
       if (result.success) {
         setAuth(true);
         loadData();
+        loadMessages();
       } else {
         setAuthError(result.error || "Invalid login credentials");
       }
@@ -411,7 +443,7 @@ export default function DashboardPage() {
             { id: "skills", label: "Skills", icon: Code },
             { id: "blog", label: "Blog & Essays", icon: BookOpen },
             { id: "buckets", label: `Media & Buckets (${bucketFiles.length})`, icon: FolderUp },
-            { id: "messages", label: `Messages (${data.messages?.length || 0})`, icon: MessageSquare },
+            { id: "messages", label: `Messages (${messages.length})`, icon: MessageSquare },
             { id: "database", label: "Supabase DB", icon: Database },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -2153,16 +2185,31 @@ export default function DashboardPage() {
                 <h2 className="font-serif text-2xl tracking-tight">Contact Inquiries</h2>
                 <p className="text-xs text-muted">Submissions received via portfolio contact form</p>
               </div>
+              <button
+                type="button"
+                onClick={loadMessages}
+                disabled={messagesLoading}
+                className="btn-secondary !py-1.5 !px-3 !text-xs inline-flex items-center gap-1.5"
+              >
+                <RefreshCw size={13} className={messagesLoading ? "animate-spin" : ""} />
+                Refresh
+              </button>
             </div>
 
-            {(!data.messages || data.messages.length === 0) ? (
+            {messagesError && (
+              <div className="flex items-center gap-2 rounded-xl border border-red-300/60 bg-red-50/60 px-4 py-3 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-300">
+                <AlertCircle size={15} /> {messagesError}
+              </div>
+            )}
+
+            {messages.length === 0 ? (
               <div className="rounded-2xl border border-line bg-surface p-12 text-center text-muted">
                 <MessageSquare size={32} className="mx-auto mb-3 opacity-40" />
                 <p className="text-sm">No contact messages received yet.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {data.messages.map((m: any, i: number) => (
+                {messages.map((m: any, i: number) => (
                   <div
                     key={m.id || i}
                     className="rounded-2xl border border-line bg-surface p-5 shadow-sm space-y-3"
@@ -2193,10 +2240,7 @@ export default function DashboardPage() {
                       </a>
                       <button
                         type="button"
-                        onClick={() => {
-                          const messages = data.messages.filter((_: any, idx: number) => idx !== i);
-                          setData({ ...data, messages });
-                        }}
+                        onClick={() => removeMessage(m.id)}
                         className="btn-secondary !py-1 !px-2.5 !text-xs text-muted hover:text-red-500"
                       >
                         Delete

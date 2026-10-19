@@ -167,3 +167,64 @@ export async function saveDashboardData(data: PortfolioData): Promise<boolean> {
 
   return true;
 }
+
+// ------------------------------------------------------------------
+// Contact messages — stored apart from the content blob (see portfolio lib/db.ts)
+// ------------------------------------------------------------------
+export type ContactMessage = {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  created_at: string;
+};
+
+function getMessagesFilePath(): string {
+  return path.join(path.dirname(getDataFilePath()), "messages.json");
+}
+
+export async function getMessages(): Promise<ContactMessage[]> {
+  const p = getPool();
+  if (p) {
+    try {
+      const res = await p.query(
+        `SELECT id::text AS id, name, email, message, created_at
+         FROM portfolio_messages ORDER BY created_at DESC LIMIT 500`
+      );
+      return res.rows.map((r) => ({
+        ...r,
+        created_at: new Date(r.created_at).toISOString(),
+      }));
+    } catch (err: any) {
+      // Table doesn't exist until the first message arrives
+      if (err?.code === "42P01") return [];
+      console.error("Failed loading messages:", err);
+      throw err;
+    } finally {
+      await p.end();
+    }
+  }
+
+  const file = getMessagesFilePath();
+  if (!fs.existsSync(file)) return [];
+  return JSON.parse(fs.readFileSync(file, "utf8")) as ContactMessage[];
+}
+
+export async function deleteMessage(id: string): Promise<boolean> {
+  const p = getPool();
+  if (p) {
+    try {
+      const res = await p.query(`DELETE FROM portfolio_messages WHERE id = $1`, [Number(id)]);
+      return (res.rowCount ?? 0) > 0;
+    } finally {
+      await p.end();
+    }
+  }
+
+  const file = getMessagesFilePath();
+  if (!fs.existsSync(file)) return false;
+  const all = JSON.parse(fs.readFileSync(file, "utf8")) as ContactMessage[];
+  const next = all.filter((m) => m.id !== id);
+  fs.writeFileSync(file, JSON.stringify(next, null, 2), "utf8");
+  return next.length !== all.length;
+}

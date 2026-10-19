@@ -9,7 +9,8 @@ async function isAuth() {
 }
 
 export async function GET() {
-  const data = await getDashboardData();
+  // Messages are served only by the authenticated /api/messages route
+  const { messages: _messages, ...data } = await getDashboardData();
   return NextResponse.json(data);
 }
 
@@ -19,8 +20,9 @@ export async function PUT(req: Request) {
   }
 
   try {
-    const body = await req.json();
-    const success = await saveDashboardData(body);
+    // Never write messages into the content blob
+    const { messages: _messages, ...body } = await req.json();
+    const success = await saveDashboardData({ ...body, messages: [] });
     return NextResponse.json({ success });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

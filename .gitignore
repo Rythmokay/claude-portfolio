@@ -10,3 +10,7 @@ dashboard/.next
 dashboard/out
 dashboard/build
 .vercel
+
+# Contact form submissions (local fallback store, contains personal data)
+data/messages.json
+dashboard/data/messages.json

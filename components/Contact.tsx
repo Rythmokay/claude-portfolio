@@ -1,7 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { Download, Github, Linkedin, Loader2, Mail, Send } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  Github,
+  Linkedin,
+  Loader2,
+  Mail,
+  Send,
+  X,
+} from "lucide-react";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 import { Footer } from "./Footer";
@@ -9,9 +20,102 @@ import { usePortfolio } from "@/lib/portfolio-provider";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+type Toast = { kind: "sent" | "error"; name?: string; id: number };
+
+// Pop-up confirmation shown after the form is submitted
+function ContactToast({
+  toast,
+  email,
+  onClose,
+}: {
+  toast: Toast | null;
+  email: string;
+  onClose: () => void;
+}) {
+  const reduce = useReducedMotion();
+
+  // Auto-dismiss; errors stay up a little longer so there's time to act on them
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(onClose, toast.kind === "sent" ? 5000 : 8000);
+    return () => clearTimeout(t);
+  }, [toast, onClose]);
+
+  return (
+    <div className="pointer-events-none fixed inset-x-4 bottom-4 z-[60] flex justify-center sm:inset-x-auto sm:bottom-6 sm:right-6">
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key={toast.id}
+            role={toast.kind === "error" ? "alert" : "status"}
+            aria-live={toast.kind === "error" ? "assertive" : "polite"}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 420, damping: 32 }}
+            className="pointer-events-auto relative w-full max-w-sm overflow-hidden rounded-2xl border border-line bg-surface shadow-lift"
+          >
+            <div className="flex gap-3 p-4 pr-11">
+              <span
+                className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                  toast.kind === "sent"
+                    ? "bg-accent/10 text-accent-strong"
+                    : "bg-red-500/10 text-red-600 dark:text-red-400"
+                }`}
+              >
+                {toast.kind === "sent" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+              </span>
+              <div className="min-w-0">
+                <p className="text-[16px] leading-snug text-ink">
+                  {toast.kind === "sent"
+                    ? `Message sent${toast.name ? `, ${toast.name}` : ""}!`
+                    : "Message not sent"}
+                </p>
+                <p className="mt-1 text-[14px] leading-relaxed text-muted">
+                  {toast.kind === "sent" ? (
+                    "Thanks for reaching out — I'll get back to you shortly."
+                  ) : (
+                    <>
+                      Something went wrong. Please try again, or email me at{" "}
+                      <a href={`mailto:${email}`} className="text-accent-strong underline-offset-2 hover:underline">
+                        {email}
+                      </a>
+                      .
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Dismiss notification"
+              className="absolute right-2.5 top-2.5 rounded-lg p-1.5 text-muted transition-colors hover:bg-sunken hover:text-ink"
+            >
+              <X size={15} />
+            </button>
+            {/* Countdown bar until auto-dismiss */}
+            <motion.span
+              aria-hidden
+              initial={{ scaleX: 1 }}
+              animate={{ scaleX: 0 }}
+              transition={{ duration: toast.kind === "sent" ? 5 : 8, ease: "linear" }}
+              className={`absolute inset-x-0 bottom-0 h-0.5 origin-left ${
+                toast.kind === "sent" ? "bg-accent" : "bg-red-500/70"
+              }`}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export function Contact() {
   const { profile } = usePortfolio();
   const [status, setStatus] = useState<Status>("idle");
+  const [toast, setToast] = useState<Toast | null>(null);
+  const closeToast = useCallback(() => setToast(null), []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -20,7 +124,6 @@ export function Contact() {
     setStatus("sending");
 
     try {
-      // Point this at your own backend endpoint.
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -28,9 +131,12 @@ export function Contact() {
       });
       if (!res.ok) throw new Error("Request failed");
       setStatus("sent");
+      const name = String(data.name ?? "").trim().split(/\s+/)[0];
+      setToast({ kind: "sent", name, id: Date.now() });
       form.reset();
     } catch {
       setStatus("error");
+      setToast({ kind: "error", id: Date.now() });
     }
   }
 
@@ -89,8 +195,17 @@ export function Contact() {
           <Reveal delay={0.1} className="lg:col-span-7">
             <form
               onSubmit={onSubmit}
-              className="space-y-4 rounded-2xl border border-line bg-surface p-6 shadow-card sm:p-7"
+              className="relative space-y-4 rounded-2xl border border-line bg-surface p-6 shadow-card sm:p-7"
             >
+              {/* Honeypot for bots — hidden from people and screen readers */}
+              <input
+                type="text"
+                name="company"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="absolute -left-[9999px] h-0 w-0 opacity-0"
+              />
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className="eyebrow mb-2 block">Name</span>
@@ -138,17 +253,6 @@ export function Contact() {
                   )}
                   {status === "sending" ? "Sending…" : "Send message"}
                 </button>
-                <p
-                  role="status"
-                  aria-live="polite"
-                  className={`text-[15px] italic ${
-                    status === "error" ? "text-accent-strong" : "text-muted"
-                  }`}
-                >
-                  {status === "sent" && "Thank you — your message has been sent."}
-                  {status === "error" &&
-                    "Something went wrong. Please try again or email directly."}
-                </p>
               </div>
             </form>
           </Reveal>
@@ -156,6 +260,7 @@ export function Contact() {
       </div>
 
       <Footer />
+      <ContactToast toast={toast} email={profile.email} onClose={closeToast} />
     </section>
   );
 }

@@ -4,8 +4,9 @@ import { getPortfolioData, savePortfolioData } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const data = await getPortfolioData();
-  return NextResponse.json(data);
+  // Contact messages are private — never ship them to the public site
+  const { messages: _messages, ...publicData } = await getPortfolioData();
+  return NextResponse.json(publicData);
 }
 
 export async function PUT(req: Request) {

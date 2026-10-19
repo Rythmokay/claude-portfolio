@@ -124,30 +124,53 @@ export async function savePortfolioData(data: PortfolioData): Promise<boolean> {
   return true;
 }
 
+const MESSAGES_FILE = path.join(process.cwd(), "data", "messages.json");
+
+// Messages live in their own table (or file), never in the content blob, so a
+// dashboard "Save" can't overwrite messages that arrived while it was open.
 export async function saveMessage(msg: {
   name: string;
   email: string;
   message: string;
 }): Promise<boolean> {
-  const data = await getPortfolioData();
-  data.messages = data.messages || [];
-  data.messages.unshift({
-    id: Date.now().toString(),
-    ...msg,
-    created_at: new Date().toISOString(),
-  });
-  await savePortfolioData(data);
-
   const p = getPool();
   if (p) {
     try {
+      await p.query(`
+        CREATE TABLE IF NOT EXISTS portfolio_messages (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          message TEXT NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+      `);
       await p.query(
         `INSERT INTO portfolio_messages (name, email, message) VALUES ($1, $2, $3)`,
         [msg.name, msg.email, msg.message]
       );
+      return true;
     } catch (err) {
-      console.warn("Could not insert message to DB table:", err);
+      console.error("Could not insert message into DB:", err);
+      return false;
     }
   }
-  return true;
+
+  // Local fallback (dev only — serverless hosts have a read-only filesystem)
+  try {
+    const existing = fs.existsSync(MESSAGES_FILE)
+      ? JSON.parse(fs.readFileSync(MESSAGES_FILE, "utf8"))
+      : [];
+    existing.unshift({
+      id: Date.now().toString(),
+      ...msg,
+      created_at: new Date().toISOString(),
+    });
+    fs.mkdirSync(path.dirname(MESSAGES_FILE), { recursive: true });
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(existing, null, 2), "utf8");
+    return true;
+  } catch (err) {
+    console.error("Could not write local message file:", err);
+    return false;
+  }
 }
