@@ -40,6 +40,9 @@ import {
 } from "lucide-react";
 import { ClaudeSpark } from "@/components/ClaudeSpark";
 
+// The public portfolio site. Set NEXT_PUBLIC_PORTFOLIO_URL to override it (e.g. http://localhost:3000 locally).
+const PORTFOLIO_URL = process.env.NEXT_PUBLIC_PORTFOLIO_URL || "https://rythm-claude.vercel.app";
+
 export default function DashboardPage() {
   const [auth, setAuth] = useState<boolean | null>(null);
   const [email, setEmail] = useState("admin@rythm.com");
@@ -405,7 +408,7 @@ export default function DashboardPage() {
 
           <div className="flex items-center gap-3">
             <a
-              href="http://localhost:3000"
+              href={PORTFOLIO_URL}
               target="_blank"
               rel="noreferrer"
               className="btn-secondary !py-1.5 !px-3 !text-xs hidden sm:inline-flex"
