@@ -117,6 +117,8 @@ export async function getDashboardData(): Promise<PortfolioData> {
       }
     } catch (err) {
       console.warn("DB query failed, falling back to local file:", err);
+    } finally {
+      await p.end();
     }
   }
 
@@ -141,16 +143,7 @@ export async function getDashboardData(): Promise<PortfolioData> {
 }
 
 export async function saveDashboardData(data: PortfolioData): Promise<boolean> {
-  // Save local JSON file
-  try {
-    const dataPath = getDataFilePath();
-    fs.mkdirSync(path.dirname(dataPath), { recursive: true });
-    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error writing data backup:", err);
-  }
-
-  // Save to DB if pool configured
+  // Save to DB if pool configured — the only store the deployed portfolio can see
   const p = getPool();
   if (p) {
     try {
@@ -159,10 +152,23 @@ export async function saveDashboardData(data: PortfolioData): Promise<boolean> {
          ON CONFLICT (key) DO UPDATE SET data = $1, updated_at = NOW()`,
         [JSON.stringify(data)]
       );
-      return true;
     } catch (err) {
       console.error("Failed saving to DB:", err);
+      return false;
+    } finally {
+      await p.end();
     }
+  }
+
+  // Local JSON file: the shared store in local dev, a backup otherwise.
+  // On Vercel the filesystem is read-only, so without a DB this fails.
+  try {
+    const dataPath = getDataFilePath();
+    fs.mkdirSync(path.dirname(dataPath), { recursive: true });
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), "utf8");
+  } catch (err) {
+    console.error("Error writing local data file:", err);
+    if (!p) return false;
   }
 
   return true;

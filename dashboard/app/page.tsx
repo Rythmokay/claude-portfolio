@@ -61,6 +61,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   // Bucket / upload state
   const [bucketFiles, setBucketFiles] = useState<any[]>([]);
@@ -224,6 +225,7 @@ export default function DashboardPage() {
   const handleSave = async () => {
     setSaving(true);
     setSaveSuccess(false);
+    setSaveError("");
     try {
       const cleanData = JSON.parse(JSON.stringify(data));
       if (cleanData.skills) {
@@ -241,9 +243,13 @@ export default function DashboardPage() {
       if (res.ok) {
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setSaveError(body.error || `Save failed (${res.status})`);
       }
     } catch (e) {
       console.error(e);
+      setSaveError("Save failed — network error");
     } finally {
       setSaving(false);
     }
@@ -412,7 +418,8 @@ export default function DashboardPage() {
               id="save-changes-btn"
               onClick={handleSave}
               disabled={saving}
-              className="btn-primary !py-1.5 !px-3.5 !text-xs"
+              title={saveError || undefined}
+              className={`btn-primary !py-1.5 !px-3.5 !text-xs ${saveError ? "!bg-red-600" : ""}`}
             >
               {saving ? (
                 <Loader2 size={13} className="animate-spin" />
@@ -421,7 +428,7 @@ export default function DashboardPage() {
               ) : (
                 <Save size={13} />
               )}
-              <span>{saveSuccess ? "Saved!" : "Save Changes"}</span>
+              <span>{saveSuccess ? "Saved!" : saveError ? "Save failed" : "Save Changes"}</span>
             </button>
 
             <button

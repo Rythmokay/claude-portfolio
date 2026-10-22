@@ -23,6 +23,12 @@ export async function PUT(req: Request) {
     // Never write messages into the content blob
     const { messages: _messages, ...body } = await req.json();
     const success = await saveDashboardData({ ...body, messages: [] });
+    if (!success) {
+      return NextResponse.json(
+        { error: "Could not persist changes. Set DATABASE_URL so the dashboard and portfolio share storage." },
+        { status: 500 }
+      );
+    }
     return NextResponse.json({ success });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
