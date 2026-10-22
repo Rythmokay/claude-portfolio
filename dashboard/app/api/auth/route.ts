@@ -1,19 +1,35 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import {
+  SESSION_COOKIE,
+  SESSION_MAX_AGE,
+  createSessionToken,
+  isAuth,
+  safeEqual,
+} from "@/lib/auth";
 
+// Credentials come only from env vars — never commit a fallback password
 const ADMIN_EMAIL = process.env.DASHBOARD_EMAIL || "admin@rythm.com";
-const ADMIN_PASSWORD = process.env.DASHBOARD_PASSWORD || "7ba7c91bab9c1";
+const ADMIN_PASSWORD = process.env.DASHBOARD_PASSWORD;
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    const token = createSessionToken();
+    if (
+      ADMIN_PASSWORD &&
+      token &&
+      email === ADMIN_EMAIL &&
+      typeof password === "string" &&
+      safeEqual(password, ADMIN_PASSWORD)
+    ) {
       const cookieStore = await cookies();
-      cookieStore.set("admin_session", "authenticated", {
+      cookieStore.set(SESSION_COOKIE, token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: SESSION_MAX_AGE,
         sameSite: "lax",
       });
 
@@ -34,13 +50,10 @@ export async function POST(req: Request) {
 
 export async function DELETE() {
   const cookieStore = await cookies();
-  cookieStore.delete("admin_session");
+  cookieStore.delete(SESSION_COOKIE);
   return NextResponse.json({ success: true });
 }
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("admin_session");
-  const isAuthenticated = session?.value === "authenticated";
-  return NextResponse.json({ isAuthenticated });
+  return NextResponse.json({ isAuthenticated: await isAuth() });
 }

@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
 import path from "path";
-import { cookies } from "next/headers";
+import { isAuth } from "@/lib/auth";
+import { put, list, del } from "@vercel/blob";
 
-async function isAuth() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("admin_session");
-  return session?.value === "authenticated";
-}
+// Uploads go to Vercel Blob (public store): the deployed filesystem is
+// read-only, and Blob URLs are absolute so the portfolio site can use them too.
+const PREFIX = "uploads/";
 
 export async function POST(req: Request) {
   if (!(await isAuth())) {
@@ -23,30 +21,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
     const originalName = file.name;
     const ext = path.extname(originalName) || "";
     const baseName = path.basename(originalName, ext).replace(/[^a-zA-Z0-9_-]/g, "_");
     const uniqueFilename = `${baseName}_${Date.now()}${ext}`;
 
-    // Target upload path in root public/uploads and local dashboard/public/uploads
-    const uploadDirs = [
-      path.resolve(process.cwd(), "..", "public", "uploads"),
-      path.resolve(process.cwd(), "public", "uploads"),
-    ];
-
-    for (const dir of uploadDirs) {
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(path.join(dir, uniqueFilename), buffer);
-    }
-
-    const publicUrl = `/uploads/${uniqueFilename}`;
+    const blob = await put(`${PREFIX}${uniqueFilename}`, file, {
+      access: "public",
+      contentType: file.type || undefined,
+    });
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: blob.url,
       filename: uniqueFilename,
       originalName,
       size: file.size,
@@ -63,26 +50,19 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  const uploadDir = path.resolve(process.cwd(), "..", "public", "uploads");
-  if (!fs.existsSync(uploadDir)) {
-    return NextResponse.json({ files: [] });
-  }
-
   try {
-    const fileNames = fs.readdirSync(uploadDir).filter((f) => !f.startsWith("."));
-    const files = fileNames
-      .map((f) => {
-        const stat = fs.statSync(path.join(uploadDir, f));
-        const ext = path.extname(f).toLowerCase();
-        const isImage = [".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"].includes(ext);
-        const isPdf = ext === ".pdf";
+    const { blobs } = await list({ prefix: PREFIX, limit: 1000 });
+    const files = blobs
+      .map((b) => {
+        const name = b.pathname.slice(PREFIX.length);
+        const ext = path.extname(name).toLowerCase();
         return {
-          name: f,
-          url: `/uploads/${f}`,
-          size: stat.size,
-          updatedAt: stat.mtime,
-          isImage,
-          isPdf,
+          name,
+          url: b.url,
+          size: b.size,
+          updatedAt: b.uploadedAt,
+          isImage: [".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"].includes(ext),
+          isPdf: ext === ".pdf",
         };
       })
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -104,11 +84,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Filename required" }, { status: 400 });
     }
 
-    const safeFilename = path.basename(filename);
-    const target = path.resolve(process.cwd(), "..", "public", "uploads", safeFilename);
-    if (fs.existsSync(target)) {
-      fs.unlinkSync(target);
-    }
+    await del(`${PREFIX}${path.basename(filename)}`);
     return NextResponse.json({ success: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

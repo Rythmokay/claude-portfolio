@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDashboardData, saveDashboardData } from "@/lib/db";
-import { cookies } from "next/headers";
-
-async function isAuth() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("admin_session");
-  return session?.value === "authenticated";
-}
+import { isAuth } from "@/lib/auth";
 
 export async function GET() {
   // Messages are served only by the authenticated /api/messages route

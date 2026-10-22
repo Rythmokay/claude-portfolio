@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { isAuth } from "@/lib/auth";
 import { deleteMessage, getMessages } from "@/lib/db";
-
-async function isAuth() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("admin_session");
-  return session?.value === "authenticated";
-}
 
 export async function GET() {
   if (!(await isAuth())) {
